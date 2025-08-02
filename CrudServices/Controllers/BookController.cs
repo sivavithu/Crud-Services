@@ -1,10 +1,12 @@
-﻿using CrudService.Models;
+﻿using ClosedXML.Excel;
+using CrudService.Models;
 using CrudService.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OfficeOpenXml;
 using System;
 using System.Threading.Tasks;
-
+using System.IO;
 namespace CrudService.Controllers
 {
     [Route("")]
@@ -13,10 +15,12 @@ namespace CrudService.Controllers
     public class BookController : ControllerBase
     {
         private readonly IBookService _bookService;
+        private readonly IWebHostEnvironment _environment;
 
-        public BookController(IBookService bookService)
+        public BookController(IBookService bookService, IWebHostEnvironment environment)
         {
             _bookService = bookService;
+            _environment = environment;
         }
 
         [HttpGet("books")]
@@ -49,11 +53,111 @@ namespace CrudService.Controllers
         }
 
         [HttpDelete("books/{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> Delete(Guid id)
         {
             var success = await _bookService.DeleteAsync(id);
             if (!success) return NotFound();
             return NoContent();
         }
+
+        [HttpPost("books/upload-excel")]
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult> UploadExcel([FromForm] IFormFile file)
+        {
+            // Check for an invalid or empty file and ensure it's an .xlsx file.
+            if (file == null || file.Length == 0 || !file.FileName.EndsWith(".xlsx"))
+            {
+                return BadRequest("Invalid Excel file");
+            }
+
+            var webRootPath = _environment.WebRootPath;
+            if (string.IsNullOrEmpty(webRootPath))
+            {
+                return StatusCode(500, "WebRootPath is not configured. Ensure a 'wwwroot' folder exists.");
+            }
+
+            var uploadsPath = Path.Combine(webRootPath, "uploads");
+            if (!Directory.Exists(uploadsPath))
+            {
+                Directory.CreateDirectory(uploadsPath);
+            }
+
+            // Create a unique filename to avoid conflicts.
+            var filePath = Path.Combine(uploadsPath, Guid.NewGuid() + Path.GetExtension(file.FileName));
+
+            try
+            {
+                // Save the file to the server.
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                // Read the Excel file using ClosedXML.
+                using var workbook = new XLWorkbook(filePath);
+                var worksheet = workbook.Worksheet(1); // Assume the first worksheet.
+                var lastRowUsed = worksheet.LastRowUsed();
+                var rowCount = lastRowUsed?.RowNumber() ?? 0;
+
+                if (rowCount < 2)
+                {
+                    // Clean up the temporary file if it's empty/invalid before returning.
+                    System.IO.File.Delete(filePath);
+                    return BadRequest("Excel file is empty or lacks data rows.");
+                }
+
+                // Validate the headers in the first row. This is a crucial check.
+                if (worksheet.Cell(1, 1).GetString() != "Name" || worksheet.Cell(1, 2).GetString() != "Author")
+                {
+                    // Clean up the temporary file if headers are invalid.
+                    System.IO.File.Delete(filePath);
+                    return BadRequest("Excel file must have 'Name' and 'Author' headers in the first row.");
+                }
+
+                int booksAdded = 0;
+                int duplicatesSkipped = 0;
+
+                for (int row = 2; row <= rowCount; row++)
+                {
+                    var name = worksheet.Cell(row, 1).GetString()?.Trim() ?? string.Empty;
+                    var author = worksheet.Cell(row, 2).GetString()?.Trim() ?? string.Empty;
+
+                    // Skip any rows that don't have both a name and an author.
+                    if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(author))
+                    {
+                        continue;
+                    }
+
+                    var dto = new BookDto { Name = name, Author = author };
+
+                    // Check for uniqueness before creating the book.
+                    if (await _bookService.ExistsAsync(dto.Name, dto.Author))
+                    {
+                        duplicatesSkipped++;
+                        continue; // Skip the duplicate book.
+                    }
+
+                    await _bookService.CreateAsync(dto);
+                    booksAdded++;
+                }
+
+                // Clean up the temporary file after successful processing.
+                System.IO.File.Delete(filePath);
+
+                return Ok($"Excel file processed successfully. {booksAdded} books added, {duplicatesSkipped} duplicates skipped.");
+            }
+            catch (Exception ex)
+            {
+                // Always try to delete the file in case of an error during processing.
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
+                Console.WriteLine($"Error in UploadExcel: {ex.Message}\nStackTrace: {ex.StackTrace}");
+                return StatusCode(500, $"Error importing Excel: {ex.Message}");
+            }
+        }
+
     }
-}
+        }

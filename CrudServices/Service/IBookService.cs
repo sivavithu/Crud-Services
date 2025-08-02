@@ -12,5 +12,6 @@ namespace CrudService.Service
         Task<BookDto> CreateAsync(BookDto dto);
         Task<BookDto?> UpdateAsync(Guid id, BookDto dto);
         Task<bool> DeleteAsync(Guid id);
+        Task<bool> ExistsAsync(string name, string author);
     }
 }

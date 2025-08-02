@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
+using System.IO;
 namespace CrudService.Service
 {
     public class BookService : IBookService
@@ -57,5 +57,12 @@ namespace CrudService.Service
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<bool> ExistsAsync(string name, string author)
+        {
+            return await _context.Books
+                .AnyAsync(b => b.Name.ToLower() == name.ToLower() && b.Author.ToLower() == author.ToLower());
+        }
+
     }
 }

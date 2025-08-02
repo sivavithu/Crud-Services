@@ -7,12 +7,13 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddDbContext<BookDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("BookDatabase")));
 builder.Services.AddScoped<IBookService, BookService>();
 
-
+// Configure JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -24,15 +25,22 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = builder.Configuration["AppSettings:Audience"],
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["AppSettings:Key"]!)),
-            ValidateLifetime = true
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero // Recommended for no clock skew tolerance
         };
     });
-builder.Services.AddAuthorization();
+
+// Corrected: Only one call to AddAuthorization is needed
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-//app.UseHttpsRedirection();
+// Configure the HTTP request pipeline.
+
+// Use static files from the 'wwwroot' folder. This is necessary for IWebHostEnvironment.WebRootPath to be populated.
+app.UseStaticFiles();
+
+//app.UseHttpsRedirection(); // Uncomment if you have HTTPS set up
 app.UseAuthentication();
 app.UseAuthorization();
 
