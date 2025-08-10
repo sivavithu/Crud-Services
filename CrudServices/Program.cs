@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-
+using PdfSharp.Fonts;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -32,7 +32,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 // Corrected: Only one call to AddAuthorization is needed
 builder.Services.AddAuthorization();
-
+GlobalFontSettings.FontResolver = new CustomFontResolver();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
