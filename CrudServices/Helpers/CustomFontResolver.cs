@@ -7,7 +7,11 @@ public class CustomFontResolver : IFontResolver
     public FontResolverInfo ResolveTypeface(string familyName, bool isBold, bool isItalic)
     {
         // Return the name of the font file you added
+<<<<<<< HEAD
         return new FontResolverInfo("Montserrat-Italic.ttf");
+=======
+        return new FontResolverInfo("Montserrat-SemiBold.ttf");
+>>>>>>> 85bba0cacabe981a549101b1709ddb3c23bae4e2
     }
 
     // This method reads the font file from the disk
