@@ -7,7 +7,7 @@ This microservice is crafted to simplify data management in a microservices arch
 
 - **Beginner-Friendly**: Clean, well-commented code and step-by-step setup make it accessible for those new to .NET or microservices.
 - **Secure Integration**: Leverages JWT tokens from the Auth Service for role-based authorization, ensuring only authenticated users access endpoints.
-- **Flexible Database Support**: Uses Entity Framework Core for seamless integration with relational databases like SQL Server, PostgreSQL, or Azure SQL.
+- **Flexible Database Support**: Uses Entity Framework Core for seamless integration with relational databases like SQL Server
 - **RESTful Design**: Follows REST principles with intuitive endpoints for creating, reading, updating, and deleting resources.
 - **Scalable and Modular**: Designed to work with API gateways and other microservices (e.g., notification or analytics services) in a larger ecosystem.
 - **Extensible**: Easily add custom entities, endpoints, or advanced features like caching or bulk operations.
