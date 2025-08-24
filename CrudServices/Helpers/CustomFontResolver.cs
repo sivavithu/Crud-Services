@@ -3,7 +3,7 @@ using System.IO;
 
 public class CustomFontResolver : IFontResolver
 {
-    // This method tells PdfSharp the filename for the font family
+    // This method tells PdfSharp the filename for  font family
     public FontResolverInfo ResolveTypeface(string familyName, bool isBold, bool isItalic)
     {
 
