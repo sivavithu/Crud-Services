@@ -12,6 +12,11 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<BookDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("BookDatabase")));
 builder.Services.AddScoped<IBookService, BookService>();
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddUserSecrets<Program>()
+    .AddEnvironmentVariables();
+
 
 // Configure JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
