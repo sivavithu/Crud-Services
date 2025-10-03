@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using PdfSharp.Fonts;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -12,6 +13,18 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<BookDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("BookDatabase")));
 builder.Services.AddScoped<IBookService, BookService>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowGateway",
+        policy =>
+        {
+            policy.AllowAnyOrigin()  // Or specific origins like "http://localhost:5000"
+                  .AllowAnyMethod()  // Includes OPTIONS, POST
+                  .AllowAnyHeader();
+        });
+});
+GlobalFontSettings.FontResolver = new CustomFontResolver();
 
 // Configure JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
