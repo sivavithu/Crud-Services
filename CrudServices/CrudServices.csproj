@@ -7,6 +7,12 @@
     <UserSecretsId>aeb0961a-a1b7-46fd-b496-df5be581801a</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
+    <ItemGroup>
+    <!-- Copy fonts to output directory -->
+    <Content Include="fonts\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.105.0" />
