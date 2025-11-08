@@ -1,0 +1,17 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "AppSettings": {
+    "issuer": "your-issuer-here",
+    "Audience": "your-audience-here",
+    "Key": "your-jwt-secret-key-at-least-32-characters-long" 
+  },
+  "ConnectionStrings": {
+    "BookDatabase": "Server=your-server-name;Database=BookDb;Trusted_Connection=true;TrustServerCertificate=true;" 
+  }
+}

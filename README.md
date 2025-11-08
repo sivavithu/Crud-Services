@@ -49,22 +49,49 @@ Follow these steps to set up and run the Crud-Services microservice locally:
    dotnet restore
    ```
 
-3. **Configure the Database**  
-   Update `appsettings.json` with your database connection string:  
-   ```json
-   "ConnectionStrings": {
-     "DefaultConnection": "Server=your-server-name;Database=CrudDb;Trusted_Connection=true;TrustServerCertificate=true;"
-   }
-   ```  
-   Configure JWT settings to match the Auth Service:  
-   ```json
-   "AppSettings": {
-     "Issuer": "loginapp",
-     "Audience": "myAwesomeAudience",
-     "Key": "your-long-secure-key-here"
-   }
-   ```  
-   *Note*: Use environment variables or a secrets manager (e.g., Azure Key Vault) for sensitive data in production.
+3. **Configure Secrets Securely**  
+   
+   **IMPORTANT**: Never commit secrets to source control. This project uses .NET User Secrets for development and supports environment variables.
+
+   **Option A: Using .NET User Secrets (Recommended for Development)**
+   
+   Initialize and set your secrets using the following commands:
+   ```bash
+   cd CrudServices
+   
+   # Set JWT Configuration
+   dotnet user-secrets set "AppSettings:issuer" "loginapp"
+   dotnet user-secrets set "AppSettings:Audience" "myAwesomeAudience"
+   dotnet user-secrets set "AppSettings:Key" "your-long-secure-key-here-at-least-32-characters"
+   
+   # Set Database Connection String
+   dotnet user-secrets set "ConnectionStrings:BookDatabase" "Server=your-server-name;Database=BookDb;Trusted_Connection=true;TrustServerCertificate=true;"
+   ```
+   
+   To view your configured secrets:
+   ```bash
+   dotnet user-secrets list
+   ```
+
+   **Option B: Using Environment Variables**
+   
+   Copy `.env.example` to `.env` and update with your values:
+   ```bash
+   cp .env.example .env
+   ```
+   
+   Then edit `.env` with your actual configuration values. Note: You'll need to load these environment variables before running the application.
+
+   **Option C: Using appsettings.Development.json (Local Only)**
+   
+   Copy the example file and update with your values:
+   ```bash
+   cp CrudServices/appsettings.Development.json.example CrudServices/appsettings.Development.json
+   ```
+   
+   Then edit `appsettings.Development.json` with your actual configuration. This file is gitignored and will not be committed.
+   
+   **For Production**: Use Azure Key Vault, AWS Secrets Manager, or your cloud provider's secrets management service.
 
 4. **Apply Database Migrations**  
    Create the initial database schema:  
