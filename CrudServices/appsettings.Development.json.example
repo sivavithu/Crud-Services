@@ -7,11 +7,11 @@
   },
   "AllowedHosts": "*",
   "AppSettings": {
-    "issuer": "your-issuer-here",
-    "Audience": "your-audience-here",
-    "Key": "your-jwt-secret-key-at-least-32-characters-long" 
+    "issuer": "REPLACE_WITH_YOUR_ISSUER",
+    "Audience": "REPLACE_WITH_YOUR_AUDIENCE",
+    "Key": "REPLACE_WITH_YOUR_SECRET_KEY_MIN_32_CHARS"
   },
   "ConnectionStrings": {
-    "BookDatabase": "Server=your-server-name;Database=BookDb;Trusted_Connection=true;TrustServerCertificate=true;" 
+    "BookDatabase": "Server=REPLACE_WITH_SERVER;Database=BookDb;Trusted_Connection=true;TrustServerCertificate=true;"
   }
 }
